@@ -1,0 +1,132 @@
+menu "Network Configuration"
+    menu "Network Selection"
+        config NETWORK_USE_WIFI
+            bool "Enable WiFi configuration"
+            default y
+        config NETWORK_USE_LORA
+            bool "Enable LoRa configuration"
+            default n
+
+        menu "LoRa Role Configuration"
+            depends on NETWORK_USE_LORA
+            choice LORA_ROLE
+                prompt "Device role in the LoRa network."
+                default LORA_ROLE_MASTER
+                help
+                    Device role in the LoRa network.
+
+                config LORA_ROLE_MASTER
+                    bool "MASTER"
+                config LORA_ROLE_SLAVE
+                    bool "SLAVE"
+            endchoice
+        endmenu
+    endmenu
+
+    menu "Network Provisioning Selection"
+        config NETWORK_PROVISIONING_SMARTCONFIG
+            bool "Enable SmartConfig's smart network configuration method"
+            default y
+            help
+                Enable SmartConfig's smart network configuration method
+        
+        config NETWORK_PROVISIONING_SOFTAPCONFIG
+            bool "Enable SoftAP's network configuration method"
+            default n
+            help
+                "Enable SoftAP's network configuration method"
+
+        config NETWORK_PROVISIONING_BLECONFIG
+            depends on IDF_TARGET_ESP32 || IDF_TARGET_ESP32C3
+            bool "Enable BLE's network configuration method"
+            default n
+            help
+                "Enable BLE's network configuration method"
+
+        config NETWORK_PROVISIONING_SOFTAPCONFIG_SSID
+            depends on NETWORK_PROVISIONING_SOFTAPCONFIG
+            string "SoftAP ssid"
+            default "tcloud_XXX"
+            help
+                SSID (network name) for the phone to connect to.
+
+        config NETWORK_PROVISIONING_SOFTAPCONFIG_PASSWORD
+            depends on NETWORK_PROVISIONING_SOFTAPCONFIG
+            string "SoftAP password"
+            default ""
+            help
+                WiFi password (WPA or WPA2) for the example to use.
+                Can be left blank if the network has no security set.
+
+        config NETWORK_PROVISIONING_BLECONFIG_NAME
+            depends on NETWORK_PROVISIONING_BLECONFIG
+            string "BLE name"
+            default "EBOOK"
+            help
+                BLE for the phone to connect to.
+
+        config NETWORK_WIFI_AUTH_OPEN
+            bool "Enable authenticate mode : open"
+            default n
+            help
+                Enable authenticate mode : open
+        
+        config NETWORK_WIFI_AUTH_OPEN_SSID
+            depends on NETWORK_WIFI_AUTH_OPEN
+            string "WiFi SSID"
+            default  ""
+            help
+                SSID (network name) for the device to connect to.
+    endmenu
+            
+    menu "LoRa SPI GPIO Configuration"
+        config CS_GPIO
+            int "CS GPIO"
+            range 0 35
+            default 5
+            help
+            Pin Number where the NCS pin of the LoRa module is connected to.
+        
+        config RST_GPIO
+            int "RST GPIO"
+            range 0 35
+            default 4
+            help
+            Pin Number where the NRST pin of the LoRa module is connected to.
+        
+        config MISO_GPIO
+            int "MISO GPIO"
+            range 0 35
+            default 19
+            help
+            Pin Number to be used as the MISO SPI signal.
+        
+        config MOSI_GPIO
+            int "MOSI GPIO"
+            range 0 35
+            default 23
+            help
+            Pin Number to be used as the MOSI SPI signal.
+        
+        config SCK_GPIO
+            int "SCK GPIO"
+            range 0 35
+            default 18
+            help
+            Pin Number to be used as the SCK SPI signal.
+    
+        config TX_ENABLE_GPIO
+            int "RADIO TX ENABLE GPIO"
+            range 0 35
+            default 21
+            help
+            Pin Number to be used as the TX enable signal.
+    
+        config RX_ENABLE_GPIO
+            int "RADIO RX ENABLE GPIO"
+            range 0 35
+            default 22
+            help
+            Pin Number to be used as the RX enable signal.
+    endmenu
+endmenu
