@@ -56,3 +56,5 @@ build/
 
 #Environment configure
 .vscode/
+
+.DS_Store

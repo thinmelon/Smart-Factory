@@ -2,7 +2,6 @@
 #include "esp_qcloud_console.h"
 #include "esp_qcloud_mqtt.h"
 #include "esp_qcloud_storage.h"
-#include "esp_qcloud_iothub.h"
 #include "esp_qcloud_prov.h"
 
 #ifdef CONFIG_BT_ENABLE
@@ -163,6 +162,11 @@ static esp_err_t get_wifi_config(wifi_config_t *wifi_cfg, uint32_t wait_ms)
     return ESP_OK;
 }
 
+bool esp_qcloud_is_mqtt_connected(void)
+{
+    return g_qcloud_mqtt_is_connected;
+}
+
 void esp_qcloud_init(const esp_qcloud_get_param_t get_param_cb,
                      const esp_qcloud_set_param_t set_param_cb,
                      const esp_qcloud_action_cb_t action_cb)
@@ -212,7 +216,7 @@ void esp_qcloud_init(const esp_qcloud_get_param_t get_param_cb,
     // ESP_ERROR_CHECK(esp_qcloud_device_add_fw_version("0.0.1"));
     /**< Register the properties of the device */
     ESP_ERROR_CHECK(esp_qcloud_device_add_property("PROPERTY_CUT_NUMBER", QCLOUD_VAL_TYPE_INTEGER));
-    // ESP_ERROR_CHECK(esp_qcloud_device_add_property("PROPERTY_WIFI_MAC", QCLOUD_VAL_TYPE_STRING));
+    ESP_ERROR_CHECK(esp_qcloud_device_add_property("PROPERTY_CUT_RFID_EPC", QCLOUD_VAL_TYPE_STRING));
     /**< The processing function of the communication between the device and the server */
     ESP_ERROR_CHECK(esp_qcloud_device_add_property_cb(get_param_cb, set_param_cb));
     ESP_ERROR_CHECK(esp_qcloud_device_add_action_cb("ACTION_RESET_CUT_NUMBER", action_cb));

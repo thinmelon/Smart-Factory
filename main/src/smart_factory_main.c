@@ -5,7 +5,6 @@
 #include "esp_qcloud_log.h"
 #include "esp_qcloud_storage.h"
 
-#include "lora.h"
 #include "button.h"
 #include "smart_factory_main.h"
 
@@ -29,6 +28,8 @@ ESP_EVENT_DEFINE_BASE(DEVICE_EVENT);
 static esp_err_t set_device_status(uint32_t value, uint8_t auto_increase)
 {
     g_device_status.counting = auto_increase ? g_device_status.counting + 1 : value;
+    bzero(g_device_status.tag_epc, BUF_SIZE);
+    strcpy(g_device_status.tag_epc, klm_900_get_cutting_tag_epc());
     esp_qcloud_storage_set(DEVICE_STATUS_NVS_KEY, &g_device_status, sizeof(g_device_status));
     // oled_show_number(0, 3, g_device_status.counting, 10, 16);
 
@@ -84,11 +85,11 @@ static esp_err_t device_get_param_handler(const char *id, esp_qcloud_param_val_t
         ESP_LOGI(TAG, "device_get_param_handler - [%s]: %d", id, val->i);
     }
 
-    // if (!strcmp(id, "PROPERTY_WIFI_MAC"))
-    // {
-    //     val->s = g_mac_str;
-    //     ESP_LOGI(TAG, "device_get_param_handler - [%s]: %s", id, val->s);
-    // }
+    if (!strcmp(id, "PROPERTY_CUT_RFID_EPC"))
+    {
+        val->s = klm_900_get_cutting_tag_epc();
+        ESP_LOGI(TAG, "device_get_param_handler - [%s]: %s", id, val->s);
+    }
 
     return ESP_OK;
 }
@@ -183,36 +184,9 @@ void app_main(void)
     else
     {
         ESP_LOGI(TAG, "<esp_qcloud_storage_get> Current counting number: %d", g_device_status.counting);
+        ESP_LOGI(TAG, "<esp_qcloud_storage_get> Current TAG EPC: %s", g_device_status.tag_epc);
+        klm_900_set_cutting_tag_epc(g_device_status.tag_epc);
     }
-
-#ifdef CONFIG_LORA_ROLE_SLAVE
-    /**
-     * @brief Lora Slave Configuration
-     *
-     * @note SX1278
-     */
-    lora_slave_run();
-    // xTaskCreate(&task_tx, "task_tx", 2048, NULL, 5, NULL);
-
-    /**
-     * @brief BUTTON
-     * Configure the button GPIO as input
-     */
-    button_handle_t btn_handle = button_create(CONFIG_GPIO_DEVICE_RESET, BUTTON_ACTIVE_LOW);
-    button_set_evt_cb(btn_handle, BUTTON_CB_TAP, button_event_handler, "RESET");
-    btn_handle = button_create(CONFIG_GPIO_DEVICE_COUNTING, BUTTON_ACTIVE_LOW);
-    button_set_evt_cb(btn_handle, BUTTON_CB_TAP, button_event_handler, "COUNT");
-#endif
-
-#ifdef CONFIG_LORA_ROLE_MASTER
-    /**
-     * @brief Lora Master Configuration
-     *
-     * @note SX1278
-     */
-    lora_master_run();
-
-#endif
 
 #ifdef CONFIG_NETWORK_USE_WIFI
     /**
@@ -232,4 +206,8 @@ void app_main(void)
                     device_set_param_handler,
                     device_set_action_handler);
 #endif
+
+    klm_900_init();
+
+    // fm_507_init();
 }

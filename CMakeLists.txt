@@ -9,4 +9,4 @@ set(EXTRA_COMPONENT_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/../../components/tencent_iot
     )
 include($ENV{IDF_PATH}/tools/cmake/project.cmake)
-project(smart-factory)
+project(esp32-rfid-uhf)

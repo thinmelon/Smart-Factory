@@ -3,6 +3,6 @@
 # project subdirectory.
 #
 
-PROJECT_NAME := smart-factory
+PROJECT_NAME := esp32-rfid-uhf
 
 include $(IDF_PATH)/make/project.mk

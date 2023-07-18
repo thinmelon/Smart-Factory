@@ -6,6 +6,7 @@
 
 #include "esp_event_base.h"
 #include "esp_qcloud_iothub.h"
+#include "uart_utils.h"
 
 #define DEVICE_STATUS_NVS_KEY "device_status"
 
@@ -25,7 +26,7 @@ extern "C"
     typedef enum
     {
         EVT_DEVICE_REPORT_PROPERTY = 11
-    } button_event_t;
+    } device_event_t;
 
     /**
      * @brief Device status struct which stores in the NVS flash.
@@ -33,6 +34,7 @@ extern "C"
     typedef struct
     {
         uint32_t counting;
+        char tag_epc[BUF_SIZE];
     } device_status_t;
 
     /**
@@ -49,20 +51,44 @@ extern "C"
                          const esp_qcloud_action_cb_t action_cb);
 
     /**
-     * @brief Config LoRa task
-     *
-     * @note Two roles: master and slave.
-     *
+     * @brief Check MQTT status
+     * 
+     * @note Provide API for outter files to access MQTT status which is stored in global variable
+     * 
+     * @return ture or false
      */
-    void lora_slave_run(void);
+    bool esp_qcloud_is_mqtt_connected(void);
 
     /**
-     * @brief Config LoRa task
-     *
-     * @note Two roles: master and slave.
-     *
+     * @brief KLM900 Get RFID TAG's EPC
+     * 
+     * @note Provide API for outter files to access EPC which is stored in global variable
+     * 
+     * @return EPC
      */
-    void lora_master_run(void);
+    char *klm_900_get_cutting_tag_epc(void);
+
+    /**
+     * @brief KLM900 Set RFID TAG's EPC
+     * 
+     * @note Provide API to initialize RFID TAG's EPC 
+     * 
+     * @param[in] epc_str EPC string
+     */
+    void klm_900_set_cutting_tag_epc(const char* epc_str);
+
+    /**
+     * @brief Initialize KLM 900 module
+     * 
+     * @note Start a task to communicate with KLM module
+     */
+    void klm_900_init(void);
+
+    /**
+     * @brief Initialize FM 507 module
+     * 
+     */
+    void fm_507_init(void);
 
 #ifdef __cplusplus
 }
